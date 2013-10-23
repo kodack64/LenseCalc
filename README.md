@@ -1,4 +1,4 @@
-LenseCalc
+レンズ調整ツール
 =========
 
-Lense collimation tool
+ビームの径から必要なレンズを確認するための補助ツール
