@@ -3,6 +3,8 @@ package optics;
 import java.io.File;
 import java.util.Scanner;
 
+
+//ƒpƒ‰ƒ[ƒ^“Ç‚İ‚İ
 public class ParameterLoader {
 	public static void loadParameter(){
 		try{

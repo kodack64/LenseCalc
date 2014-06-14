@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+//ビームとレンズの設定からレンズ区間ごとのビームの性質を計算する
 public class BeamSimulator {
 
 	private class LenseComparator implements Comparator<Lens>{
@@ -57,6 +58,7 @@ public class BeamSimulator {
 		double rayleight = beam.getRayleightLength();
 		double waist = beam.getBeamWaist();
 
+		//発散が起きた場合は例外を処理
 		double beamPosition;
 		double rtninv;
 		try{

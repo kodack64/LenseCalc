@@ -27,6 +27,7 @@ public class LensWindow extends JFrame implements ActionListener{
 		this.actionPerformed(new ActionEvent(lpc,0,""));
 	}
 
+	//再描画が必要になった際にConfigPaneから呼ばれれてViewPaneに再描画を指示するリスナ
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 		if(ae.getSource()==lpc);{

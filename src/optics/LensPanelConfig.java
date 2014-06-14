@@ -20,6 +20,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+//ウィンドウのコンフォグ部分
 public class LensPanelConfig extends JPanel{
 	ArrayList<Lens> lens;
 	ArrayList<Beam> beam;
@@ -45,8 +46,11 @@ public class LensPanelConfig extends JPanel{
 
 	ActionListener al;
 	LensPanelConfig myInstance;
+
+	//位置、焦点距離のスライダーの刻み数
 	public static final int sliderRange=10000;
 
+	//テーブル値変更の時をフックするためのテーブルモデル
 	private class MyTableModel extends DefaultTableModel{
 		MyTableModel(Object[] colNames,int rowCount){
 			super(colNames,rowCount);
@@ -54,31 +58,34 @@ public class LensPanelConfig extends JPanel{
 		@Override
 		public void setValueAt(Object aValue,int rowIndex,int columnIndex){
 
+			//テーブル値が不正なフォーマットなら初期値に強制し更新
 			try{
 //				System.out.println(aValue);
 				Double.parseDouble((String)aValue);
 				super.setValueAt(aValue,rowIndex,columnIndex);
 //				System.out.println("table value changed");
-				recheckBeam();
-				recheckLens();
-				isSliderNotifierTable1 =true;
-				isSliderNotifierTable2 =true;
-				retargetSlider(jt.getSelectedRow());
 			}catch(Exception e){
-				System.out.println(String.valueOf(rowIndex));
-				if(columnIndex==2)
-					super.setValueAt("0",rowIndex,columnIndex);
-				else
-					super.setValueAt("0.1",rowIndex,columnIndex);
+//				System.out.println(String.valueOf(rowIndex));
+				if(isRowBeam(rowIndex)){
+					if(columnIndex==2) super.setValueAt(String.valueOf(Constant.DEFAULT_BEAM_POSITION),rowIndex,columnIndex);
+					else super.setValueAt(String.valueOf(Constant.DEFAULT_BEAM_WAIST),rowIndex,columnIndex);
+				}else{
+					if(columnIndex==2) super.setValueAt(String.valueOf(Constant.DEFAULT_LENSE_POSITION),rowIndex,columnIndex);
+					else super.setValueAt(String.valueOf(Constant.DEFAULT_LENSE_FOCUS),rowIndex,columnIndex);
+				}
 //				System.out.println("table value changed but invalid format");
-				recheckBeam();
-				recheckLens();
-				isSliderNotifierTable1 =true;
-				isSliderNotifierTable2 =true;
-				retargetSlider(jt.getSelectedRow());
 			}
+			recheckBeam();
+			recheckLens();
+			//テーブル値変更に従属してスライダーを動かした場合に限り、スライダーの値変更のコールバックでテーブル値を更新しない
+			//入力した値がスライダーで表現可能な精度まで落とされてしまうのを防ぐため
+			isSliderNotifierTable1 =true;
+			isSliderNotifierTable2 =true;
+			retargetSlider(jt.getSelectedRow());
 			al.actionPerformed(new ActionEvent(myInstance,0,""));
 		}
+
+		//一列目はビームとレンズの判別のために使うので編集させない
 		@Override
 		public boolean isCellEditable(int row,int col){
 			if(col==0)return false;
@@ -86,6 +93,7 @@ public class LensPanelConfig extends JPanel{
 		}
 	}
 
+	// _alの引数は設定内容に何らかの変更があった時、再計算と再描画のためにコールする
 	LensPanelConfig(ActionListener _al){
 		al = _al;
 		myInstance=this;
@@ -120,6 +128,8 @@ public class LensPanelConfig extends JPanel{
 		tableModel = new MyTableModel(colNames,0);
 		jt = new JTable(tableModel);
 		jt.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		//現在フォーカスしている行の更新を行う
 		jt.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 			@Override
 			public void valueChanged(ListSelectionEvent e){
@@ -219,6 +229,8 @@ public class LensPanelConfig extends JPanel{
 		String[] data = {"Lens"+String.valueOf(lens.size()),"H",String.valueOf(Constant.DEFAULT_LENSE_POSITION*1e2),String.valueOf(Constant.DEFAULT_LENSE_FOCUS*1e3)};
 		tableModel.addRow(data);
 	}
+
+	//テーブル値からビームの情報を更新
 	private void recheckBeam(){
 //		System.out.println("beam updated");
 		beam.clear();
@@ -251,6 +263,8 @@ public class LensPanelConfig extends JPanel{
 			}
 		}
 	}
+
+	//テーブル値からレンズの情報を更新
 	private void recheckLens(){
 //		System.out.println("lens updated");
 		lens.clear();
@@ -286,6 +300,8 @@ public class LensPanelConfig extends JPanel{
 			tableModel.removeRow(tableModel.getRowCount()-1);
 		}
 	}
+
+	//テーブル値が更新されるか選択行が変更された場合に従属してスライダーの値を変化させる。
 	private void retargetSlider(int row){
 		currentRow = row;
 		double pos,val;
@@ -298,6 +314,8 @@ public class LensPanelConfig extends JPanel{
 			sliderTable2.setValue((int)((val-Constant.VIEW_FOCUS_SLIDER_MIN)/(Constant.VIEW_FOCUS_SLIDER_MAX-Constant.VIEW_FOCUS_SLIDER_MIN)*sliderRange));
 		}
 	}
+
+	//スライダーの位置の値が変更された時にテーブル値を更新する
 	private void setTablePosition(){
 		if(currentRow!=-1){
 			double pos = (Constant.VIEW_POSITION_SLIDER_MIN+(Constant.VIEW_POSITION_SLIDER_MAX-Constant.VIEW_POSITION_SLIDER_MIN)
@@ -305,6 +323,8 @@ public class LensPanelConfig extends JPanel{
 			jt.setValueAt(String.valueOf(pos), currentRow, 2);
 		}
 	}
+
+	//スライダーの焦点距離やウェストの値が変更された時にテーブル値を更新する
 	private void setTableValue(){
 		if(currentRow!=-1){
 			double val;
@@ -318,6 +338,7 @@ public class LensPanelConfig extends JPanel{
 			jt.setValueAt(String.valueOf(val), currentRow, 3);
 		}
 	}
+
 	private boolean isRowBeam(int row){
 		if(row<0)return false;
 		return tableModel.getValueAt(row, 0).toString().substring(0, 1).equals("B");
@@ -360,6 +381,8 @@ public class LensPanelConfig extends JPanel{
 			}else if(ce.getSource()==sliderOffsetY){
 				UnitConverter.setOffsetY(sliderOffsetY.getValue());
 			}
+
+			//焦点距離やウェスト、位置などテーブルの更新と再計算が必要な場合はリチェックをはさみ再描画のリスナをコール
 			if(ce.getSource()==sliderTable1){
 				if(isSliderNotifierTable1){
 					isSliderNotifierTable1=false;

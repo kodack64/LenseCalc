@@ -1,5 +1,8 @@
 package optics;
 
+
+//メートルピクセル間の変換
+//スケールをユーザーが変更する場合はここではなくparam.txtで変更する
 public class UnitConverter {
 	static double scaleX=1e5;
 	static double scaleY=1e3;
