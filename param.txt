@@ -1,0 +1,45 @@
+
+//ことわりが無い限り全て単位はメートル
+
+
+//NaNになった場合に代替する極小極大焦点距離
+MIN_FOCUS_LENGTH = 1e-3
+MAX_FOCUS_LENGTH = 1000
+
+//ビームを計算する左右端
+LEFT_BOUND = -30
+RIGHT_BOUND = 30
+
+//波長
+WAVE_LENGTH= 780e-9
+
+//ビューの高さ(ピクセル値で指定)
+VIEW_HEIGHT = 400
+
+//ビューをピクセルにスケーリングする場合の指数
+VIEW_SCALE_X_MIN = 3
+VIEW_SCALE_X_MAX = 7
+VIEW_SCALE_X_DEF = 5
+VIEW_SCALE_Y_MIN = 2
+VIEW_SCALE_Y_MAX = 4
+VIEW_SCALE_Y_DEF = 3
+
+//ビューに加えるオフセットの最大最小（ピクセル値）
+VIEW_OFFSET_RANGE_X = 800
+VIEW_OFFSET_RANGE_Y = 800
+
+//ビームやレンズのデフォルト位置とスライダーで動かせる範囲
+DEFAULT_BEAM_POSITION = 0
+DEFAULT_LENSE_POSITION = 5e-2
+VIEW_POSITION_SLIDER_MIN=-0.1
+VIEW_POSITION_SLIDER_MAX=0.1
+
+//レンズのデフォルト焦点距離とスライダーで動かせる範囲
+DEFAULT_LENSE_FOCUS = 1e-2
+VIEW_FOCUS_SLIDER_MIN=-0.1
+VIEW_FOCUS_SLIDER_MAX=0.1
+
+//ビームのデフォルトビームウェストとスライダーで動かせる範囲
+DEFAULT_BEAM_WAIST = 1e-4
+VIEW_WAIST_SLIDER_MIN=1e-4
+VIEW_WAIST_SLIDER_MAX=1e-3

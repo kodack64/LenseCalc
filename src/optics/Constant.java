@@ -2,7 +2,7 @@ package optics;
 
 public class Constant {
 	public static double MIN_FOCUS_LENGTH = 1e-3;
-	public static double MAX_FOCUS_LENGTH = 100;
+	public static double MAX_FOCUS_LENGTH = 1000;
 	public static double LEFT_BOUND = -30;
 	public static double RIGHT_BOUND = 30;
 	public static double WAVE_LENGTH= 780e-9;
