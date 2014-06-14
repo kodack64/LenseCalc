@@ -13,14 +13,15 @@ import javax.swing.JPanel;
 
 public class LensPanelViewer extends JPanel implements MouseListener , MouseMotionListener{
 
-	private static final int wndWidth=800;
-	private static final int wndHeight=600;
+	private static int wndWidth=800;
+	private static int wndHeight=400;
 
 	private Point clickPoint;
 	private Point motionPoint;
 	ArrayList<BoundedBeam> bblist;
 
 	LensPanelViewer(){
+		wndHeight = Constant.VIEW_HEIGHT;
 		this.setPreferredSize(new Dimension(wndWidth,wndHeight));
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
@@ -59,13 +60,47 @@ public class LensPanelViewer extends JPanel implements MouseListener , MouseMoti
 			{
 				p.x-=UnitConverter.offsetX;
 				num = String.valueOf(UnitConverter.PixelToMeterX(p.x)*1e2);
-				g.drawString("Position : " + num.substring(0, Math.min(maxNumberLength,num.length())) + " cm",0,(count+1)*16);count++;
+				g.drawString("Clicked Position",0,(count+1)*16);count++;
+				g.drawString("   Position : " + num.substring(0, Math.min(maxNumberLength,num.length())) + " cm",0,(count+1)*16);count++;
 				for(BoundedBeam bb : bblist){
 					int pixelFrom = UnitConverter.MeterToPixelX(bb.getPositionFrom());
 					int pixelTo = UnitConverter.MeterToPixelX(bb.getPositionTo());
 					if(pixelFrom < p.x  && p.x<=pixelTo){
+						if(bb.type==PolarizeType.H)g.setColor(Color.red);
+						if(bb.type==PolarizeType.V)g.setColor(Color.blue);
+						if(bb.type==PolarizeType.C)g.setColor(Color.yellow);
 						num = String.valueOf(bb.getBeamWaist(UnitConverter.PixelToMeterX(p.x))*1e3);
-						g.drawString("Waist1 : " + num.substring(0, Math.min(maxNumberLength,num.length())) + " mm", 0, (count+1)*16);count++;
+						g.drawString("   Waist : " + num.substring(0, Math.min(maxNumberLength,num.length())) + " mm", 0, (count+1)*16);count++;
+						num = String.valueOf(bb.getCurvature(UnitConverter.PixelToMeterX(p.x))*1e3);
+						g.drawString("   Curvature : " + num.substring(0, Math.min(maxNumberLength,num.length())) + " mm", 0, (count+1)*16);count++;
+
+						double curv = bb.getCurvature(UnitConverter.PixelToMeterX(p.x));
+						if(!Double.isNaN(curv)){
+							double z = UnitConverter.PixelToMeterX(p.x);
+							double waist = bb.getBeamWaist(UnitConverter.PixelToMeterX(p.x));
+							double theta = Math.asin(waist/curv);
+							double centx = z-curv*Math.cos(theta);
+							int pixcx=wndWidth/2+UnitConverter.offsetX+UnitConverter.MeterToPixelX(centx);
+							int pixcy=wndHeight/2+UnitConverter.offsetY;
+							int radius = Math.abs(UnitConverter.MeterToPixelX(curv));
+							if(bb.type==PolarizeType.H)g.setColor(new Color(0xff,0xbb,0xbb));
+							if(bb.type==PolarizeType.V)g.setColor(new Color(0xbb,0xbb,0xff));
+							if(bb.type==PolarizeType.C)g.setColor(new Color(0xff,0xff,0xbb));
+							g.drawOval(
+									pixcx-radius,
+									pixcy-radius,
+									radius*2,
+									radius*2
+									);
+							g.setColor(Color.black);
+						}
+						g.setColor(Color.lightGray);
+						g.drawLine(
+								p.x+wndWidth/2+UnitConverter.offsetX
+								,UnitConverter.offsetY+wndHeight/2
+								,p.x+wndWidth/2+UnitConverter.offsetX
+								,UnitConverter.offsetY+wndHeight/2-UnitConverter.MeterToPixelY(bb.getBeamWaist(UnitConverter.PixelToMeterX(p.x))));
+						g.setColor(Color.black);
 					}
 				}
 			}
@@ -73,17 +108,50 @@ public class LensPanelViewer extends JPanel implements MouseListener , MouseMoti
 			{
 				p.x-=UnitConverter.offsetX;
 				num = String.valueOf(UnitConverter.PixelToMeterX(p.x)*1e2);
-				g.drawString("Position : " + num.substring(0, Math.min(maxNumberLength,num.length())) + " cm",0,(count+1)*16);count++;
+				g.drawString("Mouse Position",0,(count+1)*16);count++;
+				g.drawString("   Position : " + num.substring(0, Math.min(maxNumberLength,num.length())) + " cm",0,(count+1)*16);count++;
+				num = String.valueOf(UnitConverter.PixelToMeterX(motionPoint.x-clickPoint.x)*1e2);
+				g.drawString("   Distance : " + num.substring(0, Math.min(maxNumberLength,num.length())) + " cm",0,(count+1)*16);count++;
 				for(BoundedBeam bb : bblist){
 					int pixelFrom = UnitConverter.MeterToPixelX(bb.getPositionFrom());
 					int pixelTo = UnitConverter.MeterToPixelX(bb.getPositionTo());
 					if(pixelFrom < p.x  && p.x<=pixelTo){
+						if(bb.type==PolarizeType.H)g.setColor(Color.red);
+						if(bb.type==PolarizeType.V)g.setColor(Color.blue);
+						if(bb.type==PolarizeType.C)g.setColor(Color.yellow);
 						num = String.valueOf(bb.getBeamWaist(UnitConverter.PixelToMeterX(p.x))*1e3);
-						g.drawString("Waist1 : " + num.substring(0, Math.min(maxNumberLength,num.length())) + " mm", 0, (count+1)*16);count++;
+						g.drawString("   Waist : " + num.substring(0, Math.min(maxNumberLength,num.length())) + " mm", 0, (count+1)*16);count++;
+						num = String.valueOf(bb.getCurvature(UnitConverter.PixelToMeterX(p.x))*1e3);
+						g.drawString("   Curvature : " + num.substring(0, Math.min(maxNumberLength,num.length())) + " mm", 0, (count+1)*16);count++;
+
+						double curv = bb.getCurvature(UnitConverter.PixelToMeterX(p.x));
+						if(!Double.isNaN(curv)){
+							double z = UnitConverter.PixelToMeterX(p.x);
+							double waist = bb.getBeamWaist(UnitConverter.PixelToMeterX(p.x));
+							double theta = Math.asin(waist/curv);
+							double centx = z-curv*Math.cos(theta);
+							int pixcx=wndWidth/2+UnitConverter.offsetX+UnitConverter.MeterToPixelX(centx);
+							int pixcy=wndHeight/2+UnitConverter.offsetY;
+							int radius = Math.abs(UnitConverter.MeterToPixelX(curv));
+							if(bb.type==PolarizeType.H)g.setColor(new Color(0xff,0xbb,0xbb));
+							if(bb.type==PolarizeType.V)g.setColor(new Color(0xbb,0xbb,0xff));
+							if(bb.type==PolarizeType.C)g.setColor(new Color(0xff,0xff,0xbb));
+							g.drawOval(
+									pixcx-radius,
+									pixcy-radius,
+									radius*2,
+									radius*2
+									);
+							g.setColor(Color.black);
+						}
+						g.drawLine(
+								p.x+wndWidth/2+UnitConverter.offsetX
+								,UnitConverter.offsetY+wndHeight/2
+								,p.x+wndWidth/2+UnitConverter.offsetX
+								,UnitConverter.offsetY+wndHeight/2-UnitConverter.MeterToPixelY(bb.getBeamWaist(UnitConverter.PixelToMeterX(p.x))));
 					}
 				}
 			}
-
 
 			for(BoundedBeam bb : bblist){
 				if(bb.isSource()){

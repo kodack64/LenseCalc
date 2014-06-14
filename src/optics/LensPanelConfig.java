@@ -37,12 +37,15 @@ public class LensPanelConfig extends JPanel{
 	int currentRow;
 	JSlider sliderTable1;
 	JSlider sliderTable2;
+	boolean isSliderNotifierTable1;
+	boolean isSliderNotifierTable2;
 	JTable jt;
 	DefaultTableModel tableModel;
 	ButtonActionListener bal;
 
 	ActionListener al;
 	LensPanelConfig myInstance;
+	public static final int sliderRange=10000;
 
 	private class MyTableModel extends DefaultTableModel{
 		MyTableModel(Object[] colNames,int rowCount){
@@ -50,10 +53,30 @@ public class LensPanelConfig extends JPanel{
 		}
 		@Override
 		public void setValueAt(Object aValue,int rowIndex,int columnIndex){
-			super.setValueAt(aValue,rowIndex,columnIndex);
-			recheckBeam();
-			recheckLens();
-			retargetSlider(jt.getSelectedRow());
+
+			try{
+//				System.out.println(aValue);
+				Double.parseDouble((String)aValue);
+				super.setValueAt(aValue,rowIndex,columnIndex);
+//				System.out.println("table value changed");
+				recheckBeam();
+				recheckLens();
+				isSliderNotifierTable1 =true;
+				isSliderNotifierTable2 =true;
+				retargetSlider(jt.getSelectedRow());
+			}catch(Exception e){
+				System.out.println(String.valueOf(rowIndex));
+				if(columnIndex==2)
+					super.setValueAt("0",rowIndex,columnIndex);
+				else
+					super.setValueAt("0.1",rowIndex,columnIndex);
+//				System.out.println("table value changed but invalid format");
+				recheckBeam();
+				recheckLens();
+				isSliderNotifierTable1 =true;
+				isSliderNotifierTable2 =true;
+				retargetSlider(jt.getSelectedRow());
+			}
 			al.actionPerformed(new ActionEvent(myInstance,0,""));
 		}
 		@Override
@@ -79,13 +102,19 @@ public class LensPanelConfig extends JPanel{
 		buttonAddHLens = new JButton("Add H Cyl Lens");
 		buttonRecalc = new JButton("Recalc");
 		buttonClear = new JButton("Clear Lens");
-		sliderScaleX = new JSlider(300,700,500);
-		sliderScaleY = new JSlider(200,400,300);
-		sliderOffsetX = new JSlider(-800,800,0);
-		sliderOffsetY = new JSlider(-300,300,0);
+
+		sliderScaleX = new JSlider((int)(Constant.VIEW_SCALE_X_MIN*1e2),(int)(Constant.VIEW_SCALE_X_MAX*1e2),(int)(Constant.VIEW_SCALE_X_DEF*1e2));
+		sliderScaleY = new JSlider((int)(Constant.VIEW_SCALE_Y_MIN*1e2),(int)(Constant.VIEW_SCALE_Y_MAX*1e2),(int)(Constant.VIEW_SCALE_Y_DEF*1e2));
+		sliderOffsetX = new JSlider(-Constant.VIEW_OFFSET_RANGE_X,Constant.VIEW_OFFSET_RANGE_X,0);
+		sliderOffsetY = new JSlider(-Constant.VIEW_OFFSET_RANGE_Y,Constant.VIEW_OFFSET_RANGE_Y,0);
+
+//		sliderScaleX = new JSlider(300,700,500);
+//		sliderScaleY = new JSlider(200,400,300);
+//		sliderOffsetX = new JSlider(-800,800,0);
+//		sliderOffsetY = new JSlider(-300,300,0);
 		currentRow=-1;
-		sliderTable1 = new JSlider(-10000,10000,0);
-		sliderTable2 = new JSlider(-10000,10000,0);
+		sliderTable1 = new JSlider(0,sliderRange,sliderRange/2);
+		sliderTable2 = new JSlider(0,sliderRange,sliderRange/2);
 
 		String[] colNames = {"ID","Polarize","Position(cm)","FocusLength/BeamWaist(mm)"};
 		tableModel = new MyTableModel(colNames,0);
@@ -95,6 +124,9 @@ public class LensPanelConfig extends JPanel{
 			@Override
 			public void valueChanged(ListSelectionEvent e){
 				if(e.getValueIsAdjusting())return;
+//				System.out.println("table changed");
+				isSliderNotifierTable1 =true;
+				isSliderNotifierTable2 =true;
 				int sc=jt.getSelectedRow();
 				retargetSlider(sc);
 			}
@@ -108,8 +140,8 @@ public class LensPanelConfig extends JPanel{
 			};
 		tableModel.addRow(rowData[0]);
 		tableModel.addRow(rowData[1]);
-		beam.add(new Beam(PolarizeType.V,0,1e-4,Constant.WAVE_LENGTH));
-		beam.add(new Beam(PolarizeType.H,0,1e-4,Constant.WAVE_LENGTH));
+		beam.add(new Beam(PolarizeType.V,Constant.DEFAULT_BEAM_POSITION,Constant.DEFAULT_BEAM_WAIST,Constant.WAVE_LENGTH));
+		beam.add(new Beam(PolarizeType.H,Constant.DEFAULT_BEAM_POSITION,Constant.DEFAULT_BEAM_WAIST,Constant.WAVE_LENGTH));
 
 		buttonAddBeam.addActionListener(bal);
 		buttonAddLens.addActionListener(bal);
@@ -151,9 +183,11 @@ public class LensPanelConfig extends JPanel{
 		JPanel paneTableSlider = new JPanel(new GridLayout(2,2));
 		paneTableSlider.add(new JLabel("Position"));
 		paneTableSlider.add(sliderTable1);
-		paneTableSlider.add(new JLabel("FocusOrWaist"));
+		paneTableSlider.add(new JLabel("Focus/Waist"));
 		paneTableSlider.add(sliderTable2);
 		this.add(paneTableSlider);
+		isSliderNotifierTable1=false;
+		isSliderNotifierTable2=false;
 
 //		this.add(buttonRecalc);
 	}
@@ -186,6 +220,7 @@ public class LensPanelConfig extends JPanel{
 		tableModel.addRow(data);
 	}
 	private void recheckBeam(){
+//		System.out.println("beam updated");
 		beam.clear();
 		for(int i=0;i<tableModel.getRowCount();i++){
 			if(tableModel.getValueAt(i, 0).toString().substring(0, 1).equals("B")){
@@ -217,6 +252,7 @@ public class LensPanelConfig extends JPanel{
 		}
 	}
 	private void recheckLens(){
+//		System.out.println("lens updated");
 		lens.clear();
 		for(int i=0;i<tableModel.getRowCount();i++){
 			if(tableModel.getValueAt(i, 0).toString().substring(0, 1).equals("L")){
@@ -252,23 +288,39 @@ public class LensPanelConfig extends JPanel{
 	}
 	private void retargetSlider(int row){
 		currentRow = row;
-		double pos = Double.valueOf(jt.getValueAt(row,2).toString());
-		double val = Double.valueOf(jt.getValueAt(row,3).toString());
-		sliderTable1.setValue((int)(pos*1e2));
-		sliderTable2.setValue((int)(val*1e2));
+		double pos,val;
+		pos = Double.valueOf(jt.getValueAt(row,2).toString())*1e-2;
+		val = Double.valueOf(jt.getValueAt(row,3).toString())*1e-3;
+		sliderTable1.setValue((int)((pos-Constant.VIEW_POSITION_SLIDER_MIN)/(Constant.VIEW_POSITION_SLIDER_MAX-Constant.VIEW_POSITION_SLIDER_MIN)*sliderRange));
+		if(isRowBeam(row)){
+			sliderTable2.setValue((int)((val-Constant.VIEW_WAIST_SLIDER_MIN)/(Constant.VIEW_WAIST_SLIDER_MAX-Constant.VIEW_WAIST_SLIDER_MIN)*sliderRange));
+		}else{
+			sliderTable2.setValue((int)((val-Constant.VIEW_FOCUS_SLIDER_MIN)/(Constant.VIEW_FOCUS_SLIDER_MAX-Constant.VIEW_FOCUS_SLIDER_MIN)*sliderRange));
+		}
 	}
 	private void setTablePosition(){
 		if(currentRow!=-1){
-			double pos = sliderTable1.getValue()*1e-2;
+			double pos = (Constant.VIEW_POSITION_SLIDER_MIN+(Constant.VIEW_POSITION_SLIDER_MAX-Constant.VIEW_POSITION_SLIDER_MIN)
+				*(sliderTable1.getValue()*1.0/sliderRange))*1e2;
 			jt.setValueAt(String.valueOf(pos), currentRow, 2);
 		}
 	}
 	private void setTableValue(){
-		System.out.println("table changed");;
 		if(currentRow!=-1){
-			double val = sliderTable2.getValue()*1e-2;
+			double val;
+			if(isRowBeam(currentRow)){
+				val = (Constant.VIEW_WAIST_SLIDER_MIN+(Constant.VIEW_WAIST_SLIDER_MAX-Constant.VIEW_WAIST_SLIDER_MIN)
+						*(sliderTable2.getValue()*1.0/sliderRange))*1e3;
+			}else{
+				val = (Constant.VIEW_FOCUS_SLIDER_MIN+(Constant.VIEW_FOCUS_SLIDER_MAX-Constant.VIEW_FOCUS_SLIDER_MIN)
+						*(sliderTable2.getValue()*1.0/sliderRange))*1e3;
+			}
 			jt.setValueAt(String.valueOf(val), currentRow, 3);
 		}
+	}
+	private boolean isRowBeam(int row){
+		if(row<0)return false;
+		return tableModel.getValueAt(row, 0).toString().substring(0, 1).equals("B");
 	}
 
 	private class ButtonActionListener implements ActionListener,ChangeListener{
@@ -298,6 +350,7 @@ public class LensPanelConfig extends JPanel{
 
 		@Override
 		public void stateChanged(ChangeEvent ce) {
+//			System.out.println("slider bar moved");
 			if(ce.getSource()==sliderScaleX){
 				UnitConverter.setScaleX(Math.pow(10.0,sliderScaleX.getValue()/100.0));
 			}else if(ce.getSource()==sliderScaleY){
@@ -308,14 +361,22 @@ public class LensPanelConfig extends JPanel{
 				UnitConverter.setOffsetY(sliderOffsetY.getValue());
 			}
 			if(ce.getSource()==sliderTable1){
-				setTablePosition();
-				recheckBeam();
-				recheckLens();
+				if(isSliderNotifierTable1){
+					isSliderNotifierTable1=false;
+				}else{
+					setTablePosition();
+					recheckBeam();
+					recheckLens();
+				}
 			}
 			if(ce.getSource()==sliderTable2){
-				setTableValue();
-				recheckBeam();
-				recheckLens();
+				if(isSliderNotifierTable2){
+					isSliderNotifierTable2=false;
+				}else{
+					setTableValue();
+					recheckBeam();
+					recheckLens();
+				}
 			}
 			al.actionPerformed(new ActionEvent(myInstance,0,""));
 		}

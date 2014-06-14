@@ -23,4 +23,7 @@ public class Beam {
 	public double getBeamWaist(){
 		return beamWaist;
 	}
+	public double getCurvature(double z){
+		return (z-beamPosition)*(1+Math.pow(getRayleightLength()/(z-beamPosition),2));
+	}
 }
