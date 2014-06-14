@@ -1,5 +1,6 @@
 package optics;
 
+//ƒŒƒ“ƒY‹æŠÔ‚É‚¨‚¯‚éƒr[ƒ€
 public class BoundedBeam extends Beam{
 	boolean isSourceFlag;
 	double positionFrom;

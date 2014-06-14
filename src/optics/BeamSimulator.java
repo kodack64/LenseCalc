@@ -18,6 +18,7 @@ public class BeamSimulator {
 
 	ArrayList<BoundedBeam> bbl = new ArrayList<BoundedBeam>();
 
+	//区間ごとのビームの性質を計算する
 	public ArrayList<BoundedBeam> calc(ArrayList<Beam> bl, ArrayList<Lens> ll){
 		Collections.sort(ll,new LenseComparator());
 		bbl.clear();
@@ -50,6 +51,7 @@ public class BeamSimulator {
 		else return ll.get(division).getPosition();
 	}
 
+	//隣接した次の区間のビームを計算
 	private BoundedBeam getNextBoundedBeam(Beam beam,ArrayList<Lens> ll,int division ){
 
 		Lens lense = ll.get(division-1);
