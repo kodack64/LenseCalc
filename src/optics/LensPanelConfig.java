@@ -264,6 +264,7 @@ public class LensPanelConfig extends JPanel{
 		}
 	}
 	private void setTableValue(){
+		System.out.println("table changed");;
 		if(currentRow!=-1){
 			double val = sliderTable2.getValue()*1e-2;
 			jt.setValueAt(String.valueOf(val), currentRow, 3);
