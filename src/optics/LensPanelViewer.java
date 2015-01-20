@@ -24,6 +24,7 @@ public class LensPanelViewer extends JPanel implements MouseListener , MouseMoti
 
 	LensPanelViewer(){
 		wndHeight = Constant.VIEW_HEIGHT;
+		wndWidth = Constant.VIEW_WIDTH;
 		this.setPreferredSize(new Dimension(wndWidth,wndHeight));
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);

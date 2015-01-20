@@ -16,6 +16,7 @@ public class Constant {
 
 	//ビューの高さ
 	public static int VIEW_HEIGHT = 400;
+	public static int VIEW_WIDTH = 800;
 
 	//ビューのスケール指数
 	public static double VIEW_SCALE_X_MIN = 3;

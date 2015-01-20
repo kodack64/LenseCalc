@@ -14,7 +14,8 @@ RIGHT_BOUND = 30
 WAVE_LENGTH= 780e-9
 
 //ビューの高さ(ピクセル値で指定)
-VIEW_HEIGHT = 400
+VIEW_HEIGHT = 600
+VIEW_WIDTH = 1200
 
 //ビューをピクセルにスケーリングする場合の指数
 VIEW_SCALE_X_MIN = 3

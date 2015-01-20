@@ -34,6 +34,8 @@ public class ParameterLoader {
 						Constant.WAVE_LENGTH=Double.parseDouble(param[1].trim());
 					}else if(param[0].trim().equals("VIEW_HEIGHT")){
 						Constant.VIEW_HEIGHT=Integer.parseInt(param[1].trim());
+					}else if(param[0].trim().equals("VIEW_WIDTH")){
+						Constant.VIEW_WIDTH=Integer.parseInt(param[1].trim());
 					}else if(param[0].trim().equals("VIEW_SCALE_X_MIN")){
 						Constant.VIEW_SCALE_X_MIN=Double.parseDouble(param[1].trim());
 					}else if(param[0].trim().equals("VIEW_SCALE_X_MAX")){
